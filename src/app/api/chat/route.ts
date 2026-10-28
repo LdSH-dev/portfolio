@@ -22,6 +22,9 @@ function rateLimited(ip: string) {
   return recent.length > MAX_REQUESTS;
 }
 
+// Belt and braces for the prompt's "no dashes" rule: em/en dashes read as AI.
+const humanize = (text: string) => text.replace(/\s*[—–]\s*/g, ", ");
+
 function parseMessages(body: unknown): Anthropic.MessageParam[] | null {
   const raw = (body as { messages?: unknown })?.messages;
   if (!Array.isArray(raw) || raw.length === 0 || raw.length > MAX_TURNS * 2) return null;
@@ -62,7 +65,7 @@ export async function POST(request: Request) {
       try {
         for await (const event of stream) {
           if (event.type === "content_block_delta" && event.delta.type === "text_delta") {
-            controller.enqueue(encoder.encode(event.delta.text));
+            controller.enqueue(encoder.encode(humanize(event.delta.text)));
           }
         }
         controller.close();

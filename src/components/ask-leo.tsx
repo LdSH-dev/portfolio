@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import { AnimatePresence, motion, useInView } from "motion/react";
 import { Reveal } from "@/components/motion-primitives";
@@ -20,7 +21,7 @@ const suggestions = [
 const greeting: Message = {
   id: 0,
   role: "twin",
-  text: "Hey! I'm Leo's digital twin. Ask me why he'd be a great hire — I'll answer with receipts, not buzzwords.",
+  text: "Hey, I'm Leo. Well, the AI version of me, trained only on my real work. Ask me anything you'd ask in a first interview and I'll give you straight answers with real numbers.",
 };
 
 const fallback = `I lost my connection to the real Leo for a second. Try again, or reach him directly at ${profile.email}.`;
@@ -115,13 +116,13 @@ export function AskLeo() {
           real AI. go on, grill it
         </Scribble>
         <Reveal>
-          <p className="font-mono text-xs tracking-[0.18em] text-fg-faint uppercase">01 — Interview me</p>
+          <p className="font-mono text-xs tracking-[0.18em] text-fg-faint uppercase">02 · Interview me</p>
           <h2 className="mt-4 text-4xl font-semibold tracking-[-0.03em] md:text-5xl">
             Ask my{" "}
             <span className="font-serif font-normal italic tracking-normal text-amber-gradient">digital twin.</span>
           </h2>
           <p className="mt-4 max-w-xl text-fg-muted text-pretty">
-            An AI version of me that only knows my real work. It won&apos;t make things up — when it doesn&apos;t
+            An AI version of me that only knows my real work. It won&apos;t make things up. When it doesn&apos;t
             know something, it hands you over to the real Leo.
           </p>
         </Reveal>
@@ -129,11 +130,17 @@ export function AskLeo() {
         <div ref={panelRef} className="mt-10 overflow-hidden rounded-2xl border border-line-strong bg-ink-raised shadow-[0_30px_80px_-20px_rgb(0_0_0/0.6)]">
           <div className="flex items-center justify-between border-b border-line px-5 py-3 font-mono text-[11px] text-fg-faint">
             <span className="flex items-center gap-2">
-              <span className="relative flex size-2">
-                <span className="absolute inline-flex size-full animate-ping rounded-full bg-amber opacity-60 motion-reduce:hidden" />
-                <span className="relative inline-flex size-2 rounded-full bg-amber" />
+              <span className="relative">
+                <Image src="/leo-avatar.jpg" alt="" width={56} height={56} className="size-7 rounded-full object-cover" />
+                <span className="absolute -right-0.5 -bottom-0.5 flex size-2.5">
+                  <span className="absolute inline-flex size-full animate-ping rounded-full bg-emerald-400 opacity-60 motion-reduce:hidden" />
+                  <span className="relative inline-flex size-2.5 rounded-full border-2 border-ink-raised bg-emerald-400" />
+                </span>
               </span>
-              leo.twin — online
+              <span>
+                <span className="block text-fg">Leo&apos;s twin</span>
+                online, replies in seconds
+              </span>
             </span>
             <span>AI · grounded in my CV</span>
           </div>
@@ -150,8 +157,9 @@ export function AskLeo() {
                   initial={{ opacity: 0, y: 8 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.25, ease: "easeOut" }}
-                  className={m.role === "visitor" ? "self-end" : "self-start"}
+                  className={m.role === "visitor" ? "self-end" : "flex items-end gap-2 self-start"}
                 >
+                  {m.role === "twin" && <TwinAvatar />}
                   <p
                     className={
                       m.role === "visitor"
@@ -169,9 +177,10 @@ export function AskLeo() {
                   initial={{ opacity: 0, y: 8 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0 }}
-                  className="self-start"
+                  className="flex items-end gap-2 self-start"
                   aria-label="Leo's twin is typing"
                 >
+                  <TwinAvatar />
                   <span className="flex gap-1 rounded-2xl rounded-bl-md border border-line bg-ink-overlay px-4 py-3.5">
                     {[0, 1, 2].map((i) => (
                       <motion.span
@@ -227,4 +236,8 @@ export function AskLeo() {
       </div>
     </section>
   );
+}
+
+function TwinAvatar() {
+  return <Image src="/leo-avatar.jpg" alt="" width={56} height={56} className="size-7 shrink-0 rounded-full object-cover" />;
 }

@@ -20,21 +20,20 @@ export function Reveal({ children, delay = 0, className }: { children: ReactNode
   );
 }
 
-// Each word slides up from behind a mask, staggered.
+// Each word slides up from behind a mask, staggered. Pure CSS: it's the hero
+// headline, so it must not wait for JavaScript.
 export function SplitReveal({ words, className }: { words: { text: string; className?: string }[]; className?: string }) {
   return (
     <span className={className}>
       {words.map((word, i) => (
         <Fragment key={i}>
           <span className="inline-block overflow-hidden pb-[0.12em] align-bottom">
-            <motion.span
-              className={`inline-block ${word.className ?? ""}`}
-              initial={{ y: "110%" }}
-              animate={{ y: 0 }}
-              transition={{ duration: 0.9, ease, delay: 0.1 + i * 0.06 }}
+            <span
+              className={`word-rise inline-block ${word.className ?? ""}`}
+              style={{ animationDelay: `${0.05 + i * 0.05}s` }}
             >
               {word.text}
-            </motion.span>
+            </span>
           </span>
           {/* A real space between masks so the heading can still wrap. */}
           {i < words.length - 1 ? " " : null}

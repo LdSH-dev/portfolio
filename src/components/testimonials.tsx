@@ -13,7 +13,7 @@ export function Testimonials() {
     <section id="testimonials" className="scroll-mt-24 border-y border-line bg-ink-raised/30 py-24">
       <div className="mx-auto max-w-6xl px-6">
         <Reveal>
-          <p className="font-mono text-xs tracking-[0.18em] text-fg-faint uppercase">03 — In their words</p>
+          <p className="font-mono text-xs tracking-[0.18em] text-fg-faint uppercase">04 · In their words</p>
           <h2 className="mt-4 max-w-2xl text-4xl font-semibold tracking-[-0.03em] text-balance md:text-5xl">
             Don&apos;t take{" "}
             <span className="font-serif font-normal italic tracking-normal text-amber-gradient">my word</span> for
@@ -29,7 +29,7 @@ export function Testimonials() {
             <li key={t.name}>
               <Reveal delay={i * 0.1} className="h-full">
                 <Spotlight className="flex h-full flex-col overflow-hidden rounded-2xl border border-line-strong bg-ink p-8">
-                  <span aria-hidden className="relative font-serif text-6xl leading-none text-amber/40">
+                  <span aria-hidden className="relative font-serif text-6xl leading-none text-amber/40 italic">
                     &ldquo;
                   </span>
                   <blockquote className="relative mt-2 flex-1">

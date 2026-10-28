@@ -1,12 +1,28 @@
 "use client";
 
-import { useId, type ReactNode } from "react";
-import { motion, useReducedMotion } from "motion/react";
+import { useRef, type ReactNode } from "react";
+import { motion, useInView, useReducedMotion } from "motion/react";
 
-// Hand-drawn layer: margin notes, a seal, a signature and a blueprint plate.
+// Hand-drawn layer: margin notes, a polaroid, a signature and a blueprint plate.
 // It's what makes the page feel like Leo's own drawing board.
 
 const ease = [0.22, 1, 0.36, 1] as const;
+
+// Renders decorative content only once it nears the viewport, so its fonts
+// and images never compete with the first paint.
+export function NearView({
+  children,
+  className = "",
+  ...rest
+}: { children: ReactNode; className?: string; "aria-hidden"?: boolean }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const near = useInView(ref, { once: true, margin: "300px" });
+  return (
+    <div ref={ref} className={className} {...rest}>
+      {near ? children : null}
+    </div>
+  );
+}
 
 // Each arrow is a wobbly shaft plus a head, in a 100×70 box.
 const arrows = {
@@ -15,6 +31,7 @@ const arrows = {
   down: ["M48 4 C 62 22, 36 40, 50 62", "M40 52 L50 64 L60 52"],
   left: ["M96 34 C 70 20, 40 48, 8 34", "M20 24 L8 34 L20 45"],
   right: ["M4 22 C 30 44, 62 46, 92 36", "M79 27 L92 36 L80 46"],
+  up: ["M50 64 C 38 46, 62 28, 50 6", "M40 17 L50 5 L60 17"],
 } as const;
 
 export function Scribble({
@@ -44,7 +61,7 @@ export function Scribble({
   });
 
   return (
-    <div aria-hidden className={`pointer-events-none select-none ${row ? "flex items-start gap-1" : ""} ${className}`}>
+    <NearView aria-hidden className={`pointer-events-none select-none ${row ? "flex items-start gap-1" : ""} ${className}`}>
       <motion.p
         initial={{ opacity: 0, y: 6 }}
         whileInView={{ opacity: 1, y: 0 }}
@@ -59,33 +76,7 @@ export function Scribble({
         <motion.path d={shaft} stroke="currentColor" strokeWidth="2" strokeLinecap="round" {...draw(0.3)} />
         <motion.path d={head} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...draw(0.85)} />
       </svg>
-    </div>
-  );
-}
-
-// Rotating seal with the monogram, stamped on the hero.
-export function Seal({ className = "" }: { className?: string }) {
-  const id = useId();
-  return (
-    <div aria-hidden className={`pointer-events-none ${className}`}>
-      <svg viewBox="0 0 120 120" className="size-full">
-        <defs>
-          <path id={id} d="M60,60 m-47,0 a47,47 0 1,1 94,0 a47,47 0 1,1 -94,0" />
-        </defs>
-        <circle cx="60" cy="60" r="58" fill="rgb(7 9 13 / 0.7)" stroke="rgb(240 180 92 / 0.35)" strokeDasharray="2 3" />
-        <circle cx="60" cy="60" r="34" fill="none" stroke="rgb(240 180 92 / 0.25)" />
-        <g className="origin-center animate-[spin_28s_linear_infinite] motion-reduce:animate-none">
-          <text className="fill-fg-muted font-mono text-[8px] uppercase">
-            <textPath href={`#${id}`} textLength="292" lengthAdjust="spacing">
-              Software engineer · React · Node · POA → USA ·
-            </textPath>
-          </text>
-        </g>
-        <text x="60" y="68" textAnchor="middle" className="fill-amber font-serif text-[26px] italic">
-          LH
-        </text>
-      </svg>
-    </div>
+    </NearView>
   );
 }
 
@@ -93,26 +84,28 @@ export function Seal({ className = "" }: { className?: string }) {
 export function Signature({ className = "" }: { className?: string }) {
   const reduced = useReducedMotion();
   return (
-    <svg viewBox="0 0 300 90" className={className} aria-label="Leonardo">
-      <motion.text
-        x="8"
-        y="62"
-        className="font-script text-[64px]"
-        fill="var(--amber)"
-        stroke="var(--amber)"
-        strokeWidth="0.8"
-        strokeDasharray="900"
-        initial={{ strokeDashoffset: reduced ? 0 : 900, fillOpacity: reduced ? 1 : 0 }}
-        whileInView={{ strokeDashoffset: 0, fillOpacity: 1 }}
-        viewport={{ once: true }}
-        transition={{
-          strokeDashoffset: { duration: 2.6, ease: "easeInOut" },
-          fillOpacity: { duration: 1, delay: 1.8 },
-        }}
-      >
-        Leonardo
-      </motion.text>
-    </svg>
+    <NearView className={className}>
+      <svg viewBox="0 0 300 90" className="size-full" aria-label="Leonardo">
+        <motion.text
+          x="8"
+          y="62"
+          className="font-script text-[64px]"
+          fill="var(--amber)"
+          stroke="var(--amber)"
+          strokeWidth="0.8"
+          strokeDasharray="900"
+          initial={{ strokeDashoffset: reduced ? 0 : 900, fillOpacity: reduced ? 1 : 0 }}
+          whileInView={{ strokeDashoffset: 0, fillOpacity: 1 }}
+          viewport={{ once: true }}
+          transition={{
+            strokeDashoffset: { duration: 2.6, ease: "easeInOut" },
+            fillOpacity: { duration: 1, delay: 1.8 },
+          }}
+        >
+          Leonardo
+        </motion.text>
+      </svg>
+    </NearView>
   );
 }
 
@@ -207,9 +200,11 @@ export function CoffeePlate({ className = "" }: { className?: string }) {
           <text x="254" y="266" className="fill-fg-faint font-mono text-[9px]">refills · ∞</text>
         </motion.g>
       </svg>
-      <figcaption className="mt-2 flex items-baseline justify-between gap-4 border-t border-line pt-3 font-mono text-[10px] text-fg-faint">
-        <span>fig. 07 — cup of coffee</span>
-        <span className="font-hand text-lg text-amber">fuel for every commit</span>
+      <figcaption className="mt-2 flex min-h-8 items-baseline justify-between gap-4 border-t border-line pt-3 font-mono text-[10px] text-fg-faint">
+        <span>fig. 07 · cup of coffee</span>
+        <NearView>
+          <span className="font-hand text-lg text-amber">fuel for every commit</span>
+        </NearView>
       </figcaption>
     </figure>
   );

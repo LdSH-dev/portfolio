@@ -1,12 +1,11 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import landDots from "@/data/land-dots.json";
 
 type LatLng = { lat: number; lng: number };
 type Vec3 = [number, number, number];
 
-const ORIGIN = { code: "POA", lat: -30.03, lng: -51.23 };
+const ORIGIN = { code: "BR", lat: -15.8, lng: -47.9 };
 const DESTINATIONS = [
   { code: "MIA", lat: 25.76, lng: -80.19 },
   { code: "NYC", lat: 40.71, lng: -74.0 },
@@ -33,7 +32,13 @@ function slerp(a: Vec3, b: Vec3, t: number): Vec3 {
   return [a[0] * wa + b[0] * wb, a[1] * wa + b[1] * wb, a[2] * wa + b[2] * wb];
 }
 
-const landVecs: Vec3[] = (landDots as [number, number][]).map(([lat, lng]) => toVec({ lat, lng }));
+// Land dots are fetched, not bundled: ~37 KB that the first paint doesn't need.
+let landVecs: Vec3[] = [];
+async function loadLand() {
+  if (landVecs.length) return;
+  const dots = (await (await fetch("/land-dots.json")).json()) as [number, number][];
+  landVecs = dots.map(([lat, lng]) => toVec({ lat, lng }));
+}
 
 export function Globe({ className }: { className?: string }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -50,7 +55,23 @@ export function Globe({ className }: { className?: string }) {
       getComputedStyle(document.documentElement).getPropertyValue("--font-jetbrains-mono").trim() ||
       "ui-monospace, monospace";
     const origin = toVec(ORIGIN);
-    const routes = DESTINATIONS.map((d) => ({ ...d, vec: toVec(d) }));
+    // Each route's arc is fixed in 3D, so it's computed once, not every frame.
+    const ARC_STEPS = 32;
+    const routes = DESTINATIONS.map((d) => {
+      const vec = toVec(d);
+      const arc: Vec3[] = [];
+      const alphas: string[] = [];
+      for (let s = 0; s <= ARC_STEPS; s++) {
+        const t = s / ARC_STEPS;
+        const base = slerp(origin, vec, t);
+        const lift = 1 + Math.sin(Math.PI * t) * 0.22;
+        arc.push([base[0] * lift, base[1] * lift, base[2] * lift]);
+        alphas.push(`rgba(240,180,92,${(0.15 + 0.45 * Math.sin(Math.PI * t)).toFixed(3)})`);
+      }
+      return { ...d, vec, arc, alphas };
+    });
+    const BANDS = 8;
+    const bands: number[][] = Array.from({ length: BANDS }, () => []);
 
     let width = 0;
     let height = 0;
@@ -60,7 +81,7 @@ export function Globe({ className }: { className?: string }) {
     let dragLng = 0;
     let dragging = false;
     let lastX = 0;
-    const start = performance.now();
+    let start = performance.now();
 
     const resize = () => {
       dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -117,34 +138,39 @@ export function Globe({ className }: { className?: string }) {
       ctx.setLineDash([]);
 
       // Land dots, fading toward the limb for depth.
+      // Dots are batched into a few depth bands: one fill per band instead of
+      // thousands of fillStyle changes, which keeps each frame cheap on phones.
+      for (const band of bands) band.length = 0;
       for (const v of landVecs) {
         const p = project(v);
         // Skip dots right at the limb, where they'd bunch into stripes.
         if (p.depth <= 0.12) continue;
-        ctx.fillStyle = `rgba(178,190,210,${0.08 + p.depth * 0.6})`;
-        ctx.fillRect(p.sx - 0.8, p.sy - 0.8, 1.6, 1.6);
+        bands[Math.min(BANDS - 1, Math.floor(p.depth * BANDS))].push(p.sx, p.sy);
       }
+      bands.forEach((band, b) => {
+        if (!band.length) return;
+        ctx.fillStyle = `rgba(178,190,210,${0.08 + ((b + 0.5) / BANDS) * 0.6})`;
+        ctx.beginPath();
+        for (let k = 0; k < band.length; k += 2) ctx.rect(band[k] - 0.8, band[k + 1] - 0.8, 1.6, 1.6);
+        ctx.fill();
+      });
 
-      // Routes from Porto Alegre, lifted off the surface.
+      // Routes from Brazil, lifted off the surface.
+      ctx.lineWidth = 1.2;
       routes.forEach((route, i) => {
-        const steps = 64;
         let prev: ReturnType<typeof project> | null = null;
-        for (let s = 0; s <= steps; s++) {
-          const t = s / steps;
-          const base = slerp(origin, route.vec, t);
-          const lift = 1 + Math.sin(Math.PI * t) * 0.22;
-          const p = project([base[0] * lift, base[1] * lift, base[2] * lift]);
+        route.arc.forEach((point, s) => {
+          const p = project(point);
           const visible = p.depth > 0 || !p.onDisk;
           if (prev && visible) {
-            ctx.strokeStyle = `rgba(240,180,92,${0.15 + 0.45 * Math.sin(Math.PI * t)})`;
-            ctx.lineWidth = 1.2;
+            ctx.strokeStyle = route.alphas[s];
             ctx.beginPath();
             ctx.moveTo(prev.sx, prev.sy);
             ctx.lineTo(p.sx, p.sy);
             ctx.stroke();
           }
           prev = visible ? p : null;
-        }
+        });
 
         // A packet travelling along each route, staggered.
         const t = reducedMotion ? 0.5 : ((elapsed * 0.22 + i / routes.length) % 1);
@@ -189,8 +215,13 @@ export function Globe({ className }: { className?: string }) {
       }
     };
 
+    // ~30 fps is plenty for a slow sway and halves the work on phones.
+    let lastDraw = 0;
     const loop = (now: number) => {
-      draw(now);
+      if (now - lastDraw >= 32) {
+        lastDraw = now;
+        draw(now);
+      }
       if (running) frame = requestAnimationFrame(loop);
     };
 
@@ -204,17 +235,36 @@ export function Globe({ className }: { className?: string }) {
       cancelAnimationFrame(frame);
     };
 
-    resize();
-    draw(performance.now());
+    let io: IntersectionObserver | undefined;
+    let ro: ResizeObserver | undefined;
+    let cancelled = false;
 
-    // Only animate while the globe is on screen.
-    const io = new IntersectionObserver(([entry]) => (entry.isIntersecting ? startLoop() : stopLoop()));
-    io.observe(canvas);
-    const ro = new ResizeObserver(() => {
+    // The globe is decoration, so it waits for the page to finish loading and
+    // the main thread to go idle before it fetches its data and starts drawing.
+    const boot = async () => {
+      await loadLand();
+      if (cancelled) return;
+      start = performance.now();
       resize();
-      draw(performance.now());
-    });
-    ro.observe(canvas);
+      draw(start);
+      // Only animate while the globe is on screen.
+      io = new IntersectionObserver(([entry]) => (entry.isIntersecting ? startLoop() : stopLoop()));
+      io.observe(canvas);
+      ro = new ResizeObserver(() => {
+        resize();
+        draw(performance.now());
+      });
+      ro.observe(canvas);
+    };
+    let bootTimer = 0;
+    const whenIdle = () => {
+      bootTimer = window.setTimeout(() => {
+        if ("requestIdleCallback" in window) requestIdleCallback(() => void boot(), { timeout: 2000 });
+        else void boot();
+      }, 600);
+    };
+    if (document.readyState === "complete") whenIdle();
+    else window.addEventListener("load", whenIdle, { once: true });
 
     const onDown = (e: PointerEvent) => {
       dragging = true;
@@ -236,9 +286,12 @@ export function Globe({ className }: { className?: string }) {
     canvas.addEventListener("pointercancel", onUp);
 
     return () => {
+      cancelled = true;
+      clearTimeout(bootTimer);
+      window.removeEventListener("load", whenIdle);
       stopLoop();
-      io.disconnect();
-      ro.disconnect();
+      io?.disconnect();
+      ro?.disconnect();
       canvas.removeEventListener("pointerdown", onDown);
       canvas.removeEventListener("pointermove", onMove);
       canvas.removeEventListener("pointerup", onUp);

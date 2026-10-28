@@ -15,7 +15,7 @@ const shortName = (company: string) => company.split(" · ")[0];
 const yearRange = (role: Role) => {
   const from = role.start.slice(0, 4);
   const to = role.end ? role.end.slice(0, 4) : "now";
-  return from === to ? from : `${from} — ${to}`;
+  return from === to ? from : `${from} → ${to}`;
 };
 
 function Row({ role, open, onToggle, index }: { role: Role; open: boolean; onToggle: () => void; index: number }) {
@@ -185,7 +185,7 @@ export function ExperienceList({ id = "experience" }: { id?: string }) {
           open any row for the full story
         </Scribble>
         <Reveal>
-          <p className="font-mono text-xs tracking-[0.18em] text-fg-faint uppercase">02 — Experience</p>
+          <p className="font-mono text-xs tracking-[0.18em] text-fg-faint uppercase">03 · Experience</p>
           <h2 className="mt-4 max-w-2xl text-4xl font-semibold tracking-[-0.03em] text-balance md:text-5xl">
             Where I&apos;ve{" "}
             <span className="font-serif font-normal italic tracking-normal text-amber-gradient">made a difference.</span>
@@ -205,7 +205,7 @@ export function ExperienceList({ id = "experience" }: { id?: string }) {
         </ol>
 
         <p className="mt-8 font-mono text-xs text-fg-faint">
-          Where it started: <span className="text-fg-muted">Univates</span>, 2021 — first job as a junior developer.
+          Where it started: <span className="text-fg-muted">Univates</span>, 2021, my first job as a junior developer.
         </p>
       </div>
     </section>

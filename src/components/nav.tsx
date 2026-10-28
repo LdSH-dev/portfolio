@@ -3,12 +3,14 @@
 import { useEffect, useRef, useState } from "react";
 import { motion } from "motion/react";
 
-// `short` keeps all five links on one line on small phones.
+// `short` keeps the links on one line on small phones; `wide` links only
+// show from the sm breakpoint up.
 const links = [
+  { href: "#about", label: "About", short: "About" },
   { href: "#ask", label: "Ask Leo", short: "Ask" },
   { href: "#experience", label: "Experience", short: "Career" },
   { href: "#testimonials", label: "Reviews", short: "Reviews" },
-  { href: "#github", label: "Code", short: "Code" },
+  { href: "#github", label: "Code", short: "Code", wide: true },
   { href: "#contact", label: "Contact", short: "Contact" },
 ];
 
@@ -81,7 +83,7 @@ export function Nav() {
             key={link.href}
             href={link.href}
             aria-current={active === link.href ? "true" : undefined}
-            className="relative shrink-0 rounded-full px-2.5 py-1.5 text-sm font-medium whitespace-nowrap text-fg-muted transition-colors hover:text-fg aria-[current]:text-fg sm:px-3.5"
+            className={`relative shrink-0 rounded-full px-2.5 py-1.5 text-sm font-medium whitespace-nowrap text-fg-muted transition-colors hover:text-fg aria-[current]:text-fg sm:px-3.5 ${"wide" in link ? "max-sm:hidden" : ""}`}
           >
             {active === link.href && (
               <motion.span

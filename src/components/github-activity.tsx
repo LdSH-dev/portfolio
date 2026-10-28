@@ -33,7 +33,7 @@ export async function GitHubActivity() {
       <div className="mx-auto max-w-6xl px-6">
         <Reveal className="flex flex-wrap items-end justify-between gap-6">
           <div>
-            <p className="font-mono text-xs tracking-[0.18em] text-fg-faint uppercase">04 — Code</p>
+            <p className="font-mono text-xs tracking-[0.18em] text-fg-faint uppercase">05 · Code</p>
             <h2 className="mt-4 max-w-2xl text-4xl font-semibold tracking-[-0.03em] text-balance md:text-5xl">
               Still writing code{" "}
               <span className="font-serif font-normal italic tracking-normal text-amber-gradient">for fun.</span>

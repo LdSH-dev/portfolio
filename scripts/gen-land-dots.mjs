@@ -1,5 +1,5 @@
 // Generates an evenly spaced grid of [lat, lng] points that fall on land.
-// Run once: `node scripts/gen-land-dots.mjs` -> src/data/land-dots.json
+// Run once: `node scripts/gen-land-dots.mjs` -> public/land-dots.json
 import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { createRequire } from "node:module";
 import { feature } from "topojson-client";
@@ -25,5 +25,5 @@ for (let lat = -58; lat <= 78; lat += STEP) {
 }
 
 mkdirSync("src/data", { recursive: true });
-writeFileSync("src/data/land-dots.json", JSON.stringify(points));
+writeFileSync("public/land-dots.json", JSON.stringify(points));
 console.log(`wrote ${points.length} land dots`);

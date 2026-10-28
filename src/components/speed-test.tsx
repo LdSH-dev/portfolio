@@ -17,6 +17,8 @@ const tone = (score: number) =>
       ? { stroke: "#f0b45c", text: "text-amber" }
       : { stroke: "#f87171", text: "text-red-400" };
 
+type Run = { status: "running" } | { status: "error" } | { status: "done"; result: PageSpeedResult };
+
 const runningSteps = [
   "Asking Google to load this page from its own servers…",
   "Emulating a mid-range phone on a throttled 4G connection…",
@@ -67,9 +69,14 @@ function Gauge({ value, label, delay }: { value: number; label: string; delay: n
 
 export function SpeedTest() {
   const [strategy, setStrategy] = useState<Strategy>("mobile");
-  const [status, setStatus] = useState<"idle" | "running" | "done" | "error">("idle");
-  const [result, setResult] = useState<PageSpeedResult | null>(null);
+  // One result per device, kept for the visit so switching tabs never shows
+  // the other device's scores. Nothing runs until the visitor asks.
+  const [runs, setRuns] = useState<Partial<Record<Strategy, Run>>>({});
   const [step, setStep] = useState(0);
+  const current = runs[strategy];
+  const status = current?.status ?? "idle";
+  const result = current?.status === "done" ? current.result : null;
+  const anyRunning = Object.values(runs).some((r) => r?.status === "running");
 
   // Cycle the narration while Google runs the audit.
   useEffect(() => {
@@ -79,16 +86,16 @@ export function SpeedTest() {
   }, [status]);
 
   const run = async () => {
-    setStatus("running");
+    const target = strategy;
+    const save = (r: Run) => setRuns((prev) => ({ ...prev, [target]: r }));
+    save({ status: "running" });
     setStep(0);
-    setResult(null);
     try {
-      const res = await fetch(`/api/pagespeed?strategy=${strategy}`);
+      const res = await fetch(`/api/pagespeed?strategy=${target}`);
       if (!res.ok) throw new Error();
-      setResult(await res.json());
-      setStatus("done");
+      save({ status: "done", result: (await res.json()) as PageSpeedResult });
     } catch {
-      setStatus("error");
+      save({ status: "error" });
     }
   };
 
@@ -96,7 +103,7 @@ export function SpeedTest() {
     <section id="performance" className="scroll-mt-24 border-y border-line bg-ink-raised/30 py-24">
       <div className="mx-auto max-w-6xl px-6">
         <Reveal>
-          <p className="font-mono text-xs tracking-[0.18em] text-fg-faint uppercase">05 — Performance</p>
+          <p className="font-mono text-xs tracking-[0.18em] text-fg-faint uppercase">06 · Performance</p>
           <h2 className="mt-4 max-w-3xl text-4xl font-semibold tracking-[-0.03em] text-balance md:text-5xl">
             A 3D globe, a custom cursor, a dozen animations.{" "}
             <span className="font-serif font-normal italic tracking-normal text-amber-gradient">Still fast.</span>
@@ -117,7 +124,7 @@ export function SpeedTest() {
                   key={s}
                   type="button"
                   aria-pressed={strategy === s}
-                  disabled={status === "running"}
+                  disabled={anyRunning}
                   onClick={() => setStrategy(s)}
                   className="relative rounded-full px-4 py-1.5 text-sm capitalize transition-colors disabled:opacity-50 aria-pressed:text-ink"
                 >
@@ -135,7 +142,7 @@ export function SpeedTest() {
             <button
               type="button"
               onClick={run}
-              disabled={!siteUrl || status === "running"}
+              disabled={!siteUrl || anyRunning}
               className="rounded-full bg-gradient-to-r from-amber-soft via-amber to-amber-deep px-6 py-2.5 text-sm font-semibold text-ink transition-opacity disabled:opacity-40"
             >
               {status === "running" ? "Running…" : status === "done" ? "Run again" : "Run live test"}
@@ -145,7 +152,7 @@ export function SpeedTest() {
           <div className="relative min-h-[300px] px-6 py-10 md:px-8">
             <AnimatePresence mode="wait">
               {status === "idle" && (
-                <motion.div key="idle" exit={{ opacity: 0 }} className="grid place-items-center py-10 text-center">
+                <motion.div key={`idle-${strategy}`} exit={{ opacity: 0 }} className="grid place-items-center py-10 text-center">
                   <p className="max-w-md text-fg-muted">
                     {siteUrl ? (
                       <>
@@ -192,7 +199,7 @@ export function SpeedTest() {
               )}
 
               {status === "error" && (
-                <motion.div key="error" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="grid place-items-center py-10 text-center">
+                <motion.div key={`error-${strategy}`} initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="grid place-items-center py-10 text-center">
                   <p className="max-w-md text-fg-muted">
                     Google&apos;s PageSpeed service didn&apos;t answer this time (it rate-limits busy periods). Try again in
                     a minute, or{" "}
@@ -211,7 +218,7 @@ export function SpeedTest() {
               )}
 
               {status === "done" && result && (
-                <motion.div key="done" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.4 }}>
+                <motion.div key={`done-${strategy}`} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.4 }}>
                   <div className="grid grid-cols-2 gap-y-8 md:grid-cols-4">
                     {result.scores.map((s, i) => (
                       <Gauge key={s.id} value={s.value} label={s.label} delay={0.1 + i * 0.12} />

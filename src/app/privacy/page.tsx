@@ -32,7 +32,15 @@ export default function Privacy() {
           PageSpeed Insights API. No personal data is involved.
         </p>
         <p>
-          <strong className="text-fg">No tracking.</strong> No cookies, ads or analytics profiles.
+          <strong className="text-fg">Visitor counts.</strong> Every visit is counted anonymously: a daily id made by
+          hashing your IP and browser with a salt that changes every day, plus your country. Your IP itself is never
+          stored, and yesterday&apos;s id can&apos;t be linked to today&apos;s.
+        </p>
+        <p>
+          <strong className="text-fg">If you say yes to the little card.</strong> I also keep your city, region, the
+          organisation that owns your network (often your company), the page you opened, where you came from and your
+          device type, tied to a random id saved in your browser. If you then book a call, the name you type is attached
+          to those visits. Clearing your browser storage resets it. No cookies, no ads, nothing sold or shared.
         </p>
         <p>
           Questions, or want your booking details removed? Email{" "}

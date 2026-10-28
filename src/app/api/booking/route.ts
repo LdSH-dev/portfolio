@@ -1,4 +1,5 @@
 import { connection } from "next/server";
+import { linkIdentity } from "@/lib/analytics";
 import { availableSlots, bookingConfigured, createBooking } from "@/lib/booking";
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
@@ -51,6 +52,11 @@ export async function POST(request: Request) {
   try {
     const result = await createBooking(req);
     if (!result.ok) return Response.json({ error: result.reason }, { status: 409 });
+    // Visitors who opted into analytics get their name on their visits.
+    const visitorId = str("visitorId", 36);
+    if (/^[a-f0-9-]{36}$/.test(visitorId)) {
+      await linkIdentity(visitorId, { name: req.name, email: req.email, company: req.company }).catch(() => {});
+    }
     return Response.json(result);
   } catch (error) {
     console.error("booking:", error);

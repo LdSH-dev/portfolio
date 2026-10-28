@@ -96,3 +96,43 @@ html.has-custom-cursor *:not(input, textarea) {
     scroll-behavior: auto;
   }
 }
+
+/* Above-the-fold entrances run in CSS, so they play on first paint instead of
+   waiting for hydration (keeps LCP off the JavaScript critical path). The
+   hero paragraph never starts invisible, so it can be the LCP right away. */
+/* Words start half-risen rather than fully masked: the headline is painted
+   (and counted as LCP) on the very first frame, the motion still reads. */
+@keyframes word-rise {
+  from {
+    opacity: 0.25;
+    transform: translateY(55%);
+  }
+}
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+}
+@keyframes rise-soft {
+  from {
+    opacity: 0.35;
+    transform: translateY(12px);
+  }
+}
+.word-rise {
+  animation: word-rise 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.rise {
+  animation: rise 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.rise-soft {
+  animation: rise-soft 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .word-rise,
+  .rise,
+  .rise-soft {
+    animation: none;
+  }
+}

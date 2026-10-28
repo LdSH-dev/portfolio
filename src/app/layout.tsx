@@ -11,24 +11,31 @@ const interTight = Inter_Tight({
 const jetbrainsMono = JetBrains_Mono({
   variable: "--font-jetbrains-mono",
   subsets: ["latin"],
+  weight: "400",
+  // Small labels only; the fallback mono is fine for the first frame.
+  preload: false,
 });
 
 const instrumentSerif = Instrument_Serif({
   variable: "--font-instrument-serif",
   subsets: ["latin"],
   weight: "400",
-  style: ["normal", "italic"],
+  // The serif only ever appears in italic: one file instead of two.
+  style: "italic",
 });
 
 const caveat = Caveat({
   variable: "--font-caveat",
   subsets: ["latin"],
+  // Decorative and below the fold: don't compete with the hero for bandwidth.
+  preload: false,
   weight: ["500"],
 });
 
 const greatVibes = Great_Vibes({
   variable: "--font-great-vibes",
   subsets: ["latin"],
+  preload: false,
   weight: "400",
 });
 

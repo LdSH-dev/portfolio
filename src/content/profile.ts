@@ -5,14 +5,14 @@ export const profile = {
   name: "Leonardo Hemming",
   shortName: "Leo",
   role: "Senior Full-Stack Engineer",
-  location: "Porto Alegre, Brazil",
-  coordinates: { lat: -30.03, lng: -51.23 },
+  location: "Brazil",
   email: "leonardohemming@gmail.com",
   links: {
     linkedin: "https://www.linkedin.com/in/leonardo-hemming",
     github: "https://github.com/LdSH-dev",
   },
   yearsOfExperience: "7+",
+  age: 24,
 } as const;
 
 // `from`/`to` drive the count-up animation; `to` is the real figure.
@@ -45,7 +45,7 @@ export const experience: Role[] = [
   {
     start: "2025-09",
     end: "2026-10",
-    period: "Sep 2025 — Oct 2026",
+    period: "Sep 2025 → Oct 2026",
     company: "NativePath",
     role: "Software Engineer",
     place: "Miami, FL · remote",
@@ -71,7 +71,7 @@ export const experience: Role[] = [
   {
     start: "2025-03",
     end: "2025-09",
-    period: "Mar 2025 — Sep 2025",
+    period: "Mar 2025 → Sep 2025",
     company: "Newtoo · Doctolux",
     role: "Software Engineer",
     place: "Luxembourg · remote",
@@ -94,7 +94,7 @@ export const experience: Role[] = [
   {
     start: "2023-08",
     end: "2024-08",
-    period: "Aug 2023 — Aug 2024",
+    period: "Aug 2023 → Aug 2024",
     company: "SoftExpert",
     role: "Software Engineer",
     place: "Brazil · remote",
@@ -117,7 +117,7 @@ export const experience: Role[] = [
   {
     start: "2022-08",
     end: "2023-08",
-    period: "Aug 2022 — Aug 2023",
+    period: "Aug 2022 → Aug 2023",
     company: "Why Digital",
     role: "Software Engineer",
     place: "Brazil",
@@ -141,7 +141,7 @@ export const experience: Role[] = [
   {
     start: "2021-09",
     end: "2022-05",
-    period: "Sep 2021 — May 2022",
+    period: "Sep 2021 → May 2022",
     company: "Univates",
     role: "Junior Software Engineer",
     place: "Brazil",
@@ -154,7 +154,7 @@ export const experience: Role[] = [
   {
     start: "2020-01",
     end: null,
-    period: "Jan 2020 — now",
+    period: "Jan 2020 → now",
     company: "Workana",
     role: "Freelance Software Engineer",
     place: "Global clients · remote",

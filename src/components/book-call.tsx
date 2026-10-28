@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState, type FormEvent, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { AnimatePresence, motion } from "motion/react";
+import { consentedVisitorId } from "@/components/visitor-consent";
 import { profile } from "@/content/profile";
 
 const ease = [0.22, 1, 0.36, 1] as const;
@@ -86,7 +87,7 @@ export function BookCall({ className, children }: { className?: string; children
       const res = await fetch("/api/booking", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...Object.fromEntries(form), start: slot }),
+        body: JSON.stringify({ ...Object.fromEntries(form), start: slot, visitorId: consentedVisitorId() }),
       });
       if (res.status === 409) {
         await load();

@@ -64,7 +64,7 @@ export async function runPageSpeed(url: string, strategy: Strategy): Promise<Pag
     metrics: METRICS.map((m) => ({
       id: m.id,
       label: m.label,
-      display: lh.audits[m.id]?.displayValue ?? "—",
+      display: lh.audits[m.id]?.displayValue ?? "n/a",
       score: lh.audits[m.id]?.score ?? 0,
     })),
   };
