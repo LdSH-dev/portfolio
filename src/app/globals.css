@@ -1,0 +1,96 @@
+@import "tailwindcss";
+
+:root {
+  --ink: #07090d;
+  --ink-raised: #0d1117;
+  --ink-overlay: #121822;
+  --line: rgb(148 163 184 / 0.09);
+  --line-strong: rgb(148 163 184 / 0.18);
+  --fg: #e9ebef;
+  --fg-muted: #8b94a3;
+  --fg-faint: #76808f; /* >= 4.5:1 on --ink, small mono text stays readable */
+  --amber: #f0b45c;
+  --amber-soft: #f7d699;
+  --amber-deep: #d98a35;
+}
+
+@theme inline {
+  --color-ink: var(--ink);
+  --color-ink-raised: var(--ink-raised);
+  --color-ink-overlay: var(--ink-overlay);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-fg: var(--fg);
+  --color-fg-muted: var(--fg-muted);
+  --color-fg-faint: var(--fg-faint);
+  --color-amber: var(--amber);
+  --color-amber-soft: var(--amber-soft);
+  --color-amber-deep: var(--amber-deep);
+  --font-sans: var(--font-inter-tight);
+  --font-mono: var(--font-jetbrains-mono);
+  --font-serif: var(--font-instrument-serif);
+}
+
+html {
+  background: var(--ink);
+  color-scheme: dark;
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--ink);
+  color: var(--fg);
+  font-family: var(--font-inter-tight), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Film grain, fixed over everything, so flat surfaces don't feel synthetic. */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  pointer-events: none;
+  opacity: 0.035;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+:focus-visible {
+  outline: 2px solid var(--amber);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+/* Cursor.tsx adds this class only for mouse users without reduced motion.
+   !important beats utilities like cursor-grab; text fields keep the I-beam. */
+html.has-custom-cursor,
+html.has-custom-cursor *:not(input, textarea) {
+  cursor: none !important;
+}
+
+::selection {
+  background: rgb(240 180 92 / 0.3);
+  color: var(--fg);
+}
+
+/* Blueprint grid that fades out toward the edges of the viewport. */
+.blueprint {
+  background-image:
+    linear-gradient(var(--line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--line) 1px, transparent 1px);
+  background-size: 56px 56px;
+  mask-image: radial-gradient(ellipse 80% 60% at 50% 30%, black 30%, transparent 85%);
+}
+
+.text-amber-gradient {
+  background: linear-gradient(100deg, var(--amber-soft) 0%, var(--amber) 45%, var(--amber-deep) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
