@@ -38,9 +38,10 @@ type Mem = {
   zsets: Map<string, Map<string, number>>;
   hashes: Map<string, Map<string, string>>;
   lists: Map<string, string[]>;
+  strings?: Map<string, string>;
 };
 const g = globalThis as typeof globalThis & { __leoAnalytics?: Mem };
-const mem = (g.__leoAnalytics ??= { sets: new Map(), zsets: new Map(), hashes: new Map(), lists: new Map() });
+const mem: Mem = (g.__leoAnalytics ??= { sets: new Map(), zsets: new Map(), hashes: new Map(), lists: new Map() });
 function memory(cmds: Cmd[]): unknown[] {
   return cmds.map(([op, key, ...args]) => {
     const k = String(key);
@@ -61,8 +62,10 @@ function memory(cmds: Cmd[]): unknown[] {
         return null;
       }
       case "ZRANGE": {
+        // Always newest/highest first, like the REV queries this file makes.
         const entries = [...(mem.zsets.get(k) ?? new Map()).entries()].sort((a, b) => b[1] - a[1]);
-        return entries.slice(0, Number(args[1]) + 1).flatMap(([m, s]) => [m, String(s)]);
+        const slice = entries.slice(0, Number(args[1]) + 1);
+        return args.includes("WITHSCORES") ? slice.flatMap(([m, s]) => [m, String(s)]) : slice.map(([m]) => m);
       }
       case "HINCRBY": {
         const h = mem.hashes.get(k) ?? new Map();
@@ -92,6 +95,28 @@ function memory(cmds: Cmd[]): unknown[] {
         return (mem.lists.get(k) ?? []).slice(Number(args[0]), Number(args[1]) + 1);
       case "EXPIRE":
         return 1;
+      case "ZADD": {
+        const z = mem.zsets.get(k) ?? new Map();
+        z.set(String(args[1]), Number(args[0]));
+        mem.zsets.set(k, z);
+        return 1;
+      }
+      case "ZREMRANGEBYRANK": {
+        // Only used to drop the oldest entries, keeping the newest N.
+        const z = mem.zsets.get(k) ?? new Map();
+        const keep = -Number(args[1]) - 1;
+        const sorted = [...z.entries()].sort((a, b) => b[1] - a[1]).slice(0, keep);
+        mem.zsets.set(k, new Map(sorted));
+        return 0;
+      }
+      case "SET": {
+        (mem.strings ??= new Map()).set(k, String(args[0]));
+        return "OK";
+      }
+      case "GET":
+        return mem.strings?.get(k) ?? null;
+      case "MGET":
+        return [k, ...args].map((key) => mem.strings?.get(String(key)) ?? null);
       default:
         throw new Error(`memory store: ${op} not supported`);
     }
@@ -194,4 +219,57 @@ export async function getStats() {
     visits: visits.map((v) => ({ ...v, who: who.get(v.visitorId) ?? null })),
     persistent: storeConfigured,
   };
+}
+
+// ── Chat transcripts ─────────────────────────────────────────────────────────
+// Every conversation with the twin, so Leo can see what people ask and tune it.
+
+export type ChatTurn = { role: "user" | "assistant"; content: string };
+export type ChatLog = {
+  id: string;
+  startedAt: number;
+  updatedAt: number;
+  visitorId: string | null;
+  country: string;
+  city: string;
+  turns: ChatTurn[];
+  failed?: boolean;
+  // The visitor closed the page or navigated away mid-reply.
+  aborted?: boolean;
+};
+
+const KEEP_CHATS = 500;
+const CHAT_TTL = 60 * 60 * 24 * 180;
+
+export async function saveChat(chat: Omit<ChatLog, "startedAt" | "updatedAt">) {
+  const [existing] = await run([["GET", `chat:${chat.id}`]]);
+  const startedAt = existing ? (JSON.parse(existing as string) as ChatLog).startedAt : Date.now();
+  const log: ChatLog = { ...chat, startedAt, updatedAt: Date.now() };
+  await run([
+    ["SET", `chat:${chat.id}`, JSON.stringify(log), "EX", CHAT_TTL],
+    ["ZADD", "chats", log.updatedAt, chat.id],
+    ["ZREMRANGEBYRANK", "chats", 0, -(KEEP_CHATS + 1)],
+  ]);
+}
+
+export async function getChats(limit = 100) {
+  const [ids] = await run([["ZRANGE", "chats", 0, limit - 1, "REV"]]);
+  const list = (ids as string[]) ?? [];
+  if (!list.length) return [];
+  const [raw] = await run([["MGET", ...list.map((id) => `chat:${id}`)]]);
+  const chats = ((raw as (string | null)[]) ?? [])
+    .filter((c): c is string => Boolean(c))
+    .map((c) => JSON.parse(c) as ChatLog);
+
+  const ids2 = [...new Set(chats.map((c) => c.visitorId).filter((v): v is string => Boolean(v)))];
+  const whoRaw = ids2.length ? await run(ids2.map((id) => ["HGETALL", `who:${id}`])) : [];
+  const who = new Map(
+    ids2.map((id, i) => {
+      const flat = (whoRaw[i] as string[]) ?? [];
+      const h: Record<string, string> = {};
+      for (let j = 0; j < flat.length; j += 2) h[flat[j]] = flat[j + 1];
+      return [id, h.name ? { name: h.name, company: h.company ?? "" } : null] as const;
+    }),
+  );
+  return chats.map((c) => ({ ...c, who: (c.visitorId && who.get(c.visitorId)) || null }));
 }

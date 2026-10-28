@@ -206,3 +206,12 @@ export const testimonials: Testimonial[] = [
 ];
 
 export const recommendationsUrl = `${profile.links.linkedin}/details/recommendations/`;
+
+// What recruiters actually ask on a first screen.
+export const suggestions = [
+  "Give me your 30-second pitch",
+  "How strong are you with React and Node?",
+  "Can you work US hours?",
+  "What's your biggest win so far?",
+  "What role are you looking for next?",
+];

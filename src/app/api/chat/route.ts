@@ -1,4 +1,5 @@
 import Anthropic from "@anthropic-ai/sdk";
+import { saveChat, type ChatTurn } from "@/lib/analytics";
 import { twinSystemPrompt } from "@/lib/twin-prompt";
 
 const client = new Anthropic();
@@ -21,6 +22,8 @@ function rateLimited(ip: string) {
   if (hits.size > 5000) hits.clear();
   return recent.length > MAX_REQUESTS;
 }
+
+const ID = /^[a-f0-9-]{36}$/;
 
 // Belt and braces for the prompt's "no dashes" rule: em/en dashes read as AI.
 const humanize = (text: string) => text.replace(/\s*[—–]\s*/g, ", ");
@@ -46,8 +49,33 @@ export async function POST(request: Request) {
   const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "local";
   if (rateLimited(ip)) return Response.json({ error: "rate-limited" }, { status: 429 });
 
-  const messages = parseMessages(await request.json().catch(() => null));
+  const json = (await request.json().catch(() => null)) as Record<string, unknown> | null;
+  const messages = parseMessages(json);
   if (!messages) return Response.json({ error: "bad-request" }, { status: 400 });
+
+  // Transcripts land in /stats so Leo can see what people ask. Local dev
+  // shares the production store, so it stays out unless asked for.
+  const chatId = typeof json?.chatId === "string" && ID.test(json.chatId) ? json.chatId : null;
+  const visitorId = typeof json?.visitorId === "string" && ID.test(json.visitorId) ? json.visitorId : null;
+  const logChats = chatId && (process.env.NODE_ENV === "production" || process.env.TRACK_IN_DEV === "1");
+  const log = (reply: string, outcome: "ok" | "failed" | "aborted" = "ok") => {
+    if (!logChats) return Promise.resolve();
+    const header = (name: string) => decodeURIComponent(request.headers.get(name) ?? "");
+    const turns: ChatTurn[] = [
+      ...messages.map((m) => ({ role: m.role === "assistant" ? ("assistant" as const) : ("user" as const), content: m.content as string })),
+      ...(reply ? [{ role: "assistant" as const, content: reply }] : []),
+    ];
+    return saveChat({
+      id: chatId,
+      visitorId,
+      country: header("x-vercel-ip-country"),
+      // City only for visitors who opted into analytics.
+      city: visitorId ? header("x-vercel-ip-city") : "",
+      turns,
+      failed: outcome === "failed",
+      aborted: outcome === "aborted",
+    }).catch((error) => console.error("twin log:", error));
+  };
 
   const stream = client.messages.stream(
     {
@@ -62,16 +90,21 @@ export async function POST(request: Request) {
   const encoder = new TextEncoder();
   const body = new ReadableStream({
     async start(controller) {
+      let reply = "";
       try {
         for await (const event of stream) {
           if (event.type === "content_block_delta" && event.delta.type === "text_delta") {
-            controller.enqueue(encoder.encode(humanize(event.delta.text)));
+            const text = humanize(event.delta.text);
+            reply += text;
+            controller.enqueue(encoder.encode(text));
           }
         }
+        await log(reply);
         controller.close();
       } catch (error) {
         if (error instanceof Anthropic.APIError) console.error(`twin: API ${error.status}`, error.message);
         else console.error("twin:", error);
+        await log(reply, request.signal.aborted ? "aborted" : "failed");
         controller.error(error);
       }
     },

@@ -1,22 +1,17 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import { AnimatePresence, motion, useInView } from "motion/react";
 import { Reveal } from "@/components/motion-primitives";
+import { consentedVisitorId } from "@/components/visitor-consent";
 import { Scribble } from "@/components/sketch";
-import { profile } from "@/content/profile";
+import { profile, suggestions } from "@/content/profile";
 
 type Message = { id: number; role: "twin" | "visitor"; text: string };
 
-// What recruiters actually ask on a first screen.
-const suggestions = [
-  "Give me your 30-second pitch",
-  "How strong are you with React and Node?",
-  "Can you work US hours?",
-  "What's your biggest win so far?",
-  "What role are you looking for next?",
-];
+
 
 const greeting: Message = {
   id: 0,
@@ -41,6 +36,8 @@ export function AskLeo() {
   const [streaming, setStreaming] = useState(false);
   const [draft, setDraft] = useState("");
   const nextId = useRef(1);
+  // One id per conversation, so the transcript can be followed in /stats.
+  const chatId = useRef<string | null>(null);
   const panelRef = useRef<HTMLDivElement>(null);
   const listRef = useRef<HTMLOListElement>(null);
   const inView = useInView(panelRef, { once: true, margin: "-120px" });
@@ -64,6 +61,7 @@ export function AskLeo() {
     if (!trimmed || typing || streaming) return;
     const visitor: Message = { id: nextId.current++, role: "visitor", text: trimmed };
     const history = toHistory([...conversation, visitor]);
+    chatId.current ??= crypto.randomUUID();
     setConversation((prev) => [...prev, visitor]);
     setDraft("");
     setReplyPending(true);
@@ -80,7 +78,7 @@ export function AskLeo() {
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: history }),
+        body: JSON.stringify({ messages: history, chatId: chatId.current, visitorId: consentedVisitorId() }),
       });
       if (!res.ok || !res.body) throw new Error(res.status === 429 ? slowDown : fallback);
 
@@ -233,6 +231,12 @@ export function AskLeo() {
             </button>
           </form>
         </div>
+        <p className="mt-3 text-center font-mono text-[10px] text-fg-faint">
+          Chats are saved so I can keep improving my twin. Please don&apos;t share anything sensitive.{" "}
+          <Link href="/privacy" className="underline underline-offset-2 hover:text-fg">
+            Privacy
+          </Link>
+        </p>
       </div>
     </section>
   );

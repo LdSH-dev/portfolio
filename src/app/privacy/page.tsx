@@ -25,7 +25,8 @@ export default function Privacy() {
         </p>
         <p>
           <strong className="text-fg">The digital twin chat.</strong> Your messages are sent to Anthropic&apos;s Claude API
-          to generate replies. They aren&apos;t saved by this site, so please don&apos;t share anything sensitive.
+          to generate replies. Conversations are saved for up to six months so I can see what people ask and improve the twin, with your
+          country (and city, only if you said yes to the analytics card). Please don&apos;t share anything sensitive.
         </p>
         <p>
           <strong className="text-fg">Speed test.</strong> The PageSpeed test only audits this site through Google&apos;s

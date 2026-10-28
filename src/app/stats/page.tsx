@@ -1,24 +1,15 @@
 import type { Metadata } from "next";
 import { connection } from "next/server";
 import { Suspense } from "react";
-import { getStats } from "@/lib/analytics";
+import Link from "next/link";
+import { getChats, getStats, storeConfigured } from "@/lib/analytics";
+import { Chats } from "./chats";
+import { flag, when } from "./format";
 
 export const metadata: Metadata = {
   title: "Stats",
   robots: { index: false, follow: false },
 };
-
-const flag = (cc: string) =>
-  /^[A-Z]{2}$/.test(cc) ? String.fromCodePoint(...[...cc].map((c) => 0x1f1a5 + c.charCodeAt(0))) : "🌐";
-
-const when = (ts: number) =>
-  new Date(ts).toLocaleString("en-US", {
-    month: "short",
-    day: "numeric",
-    hour: "numeric",
-    minute: "2-digit",
-    timeZone: "America/Sao_Paulo",
-  });
 
 // Private dashboard: /stats?key=<STATS_KEY>. The proxy 404s anything else.
 export default function StatsPage({ searchParams }: PageProps<"/stats">) {
@@ -34,24 +25,53 @@ export default function StatsPage({ searchParams }: PageProps<"/stats">) {
 async function Dashboard({ searchParams }: { searchParams: PageProps<"/stats">["searchParams"] }) {
   // The key itself is checked in src/proxy.ts; reading searchParams keeps this
   // render per request.
-  await searchParams;
+  const { key, tab, chat } = await searchParams;
   await connection();
-
-  const stats = await getStats();
-  const peak = Math.max(1, ...stats.last14.map((d) => d.visitors));
+  const onChats = tab === "chats";
+  const href = (params: Record<string, string>) => `/stats?${new URLSearchParams({ key: String(key), ...params })}`;
 
   return (
     <>
       <p className="font-mono text-xs tracking-[0.18em] text-fg-faint uppercase">Private · visitors</p>
       <h1 className="mt-3 text-4xl font-semibold tracking-[-0.03em]">
-        Who&apos;s been <span className="font-serif font-normal italic tracking-normal text-amber-gradient">looking.</span>
+        {onChats ? "What they're " : "Who's been "}
+        <span className="font-serif font-normal italic tracking-normal text-amber-gradient">
+          {onChats ? "asking." : "looking."}
+        </span>
       </h1>
-      {!stats.persistent && (
+      {!storeConfigured && (
         <p className="mt-3 font-mono text-[11px] text-amber">
           in-memory store: data resets on restart. Connect Upstash Redis to keep it.
         </p>
       )}
+      <nav className="mt-8 flex w-fit gap-1 rounded-full border border-line-strong p-1 text-sm">
+        {[
+          ["Overview", href({}), !onChats],
+          ["Chats", href({ tab: "chats" }), onChats],
+        ].map(([label, to, active]) => (
+          <Link
+            key={label as string}
+            href={to as string}
+            className={`rounded-full px-4 py-1.5 transition-colors ${active ? "bg-fg text-ink" : "text-fg-muted hover:text-fg"}`}
+          >
+            {label}
+          </Link>
+        ))}
+      </nav>
+      {onChats ? (
+        <Chats chats={await getChats()} selected={typeof chat === "string" ? chat : undefined} href={href} />
+      ) : (
+        <Overview stats={await getStats()} />
+      )}
+    </>
+  );
+}
 
+function Overview({ stats }: { stats: Awaited<ReturnType<typeof getStats>> }) {
+  const peak = Math.max(1, ...stats.last14.map((d) => d.visitors));
+
+  return (
+    <>
       <dl className="mt-10 grid gap-px overflow-hidden rounded-2xl border border-line bg-line sm:grid-cols-3">
         {[
           ["unique visitors", stats.total],
