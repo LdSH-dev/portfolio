@@ -1,4 +1,5 @@
 import { Reveal, Spotlight } from "@/components/motion-primitives";
+import { Scribble } from "@/components/sketch";
 import { recommendationsUrl, testimonials } from "@/content/profile";
 
 const initials = (name: string) =>
@@ -19,8 +20,11 @@ export function Testimonials() {
             it.
           </h2>
         </Reveal>
+        <Scribble arrow="down-left" delay={0.3} tilt={-4} className="mt-6 ml-[min(34rem,60vw)] max-md:hidden" arrowClassName="-ml-20 mt-1">
+          unedited, straight from LinkedIn
+        </Scribble>
 
-        <ul className="mt-14 grid gap-5 md:grid-cols-2">
+        <ul className="mt-14 grid md:-mt-2 gap-5 md:grid-cols-2">
           {testimonials.map((t, i) => (
             <li key={t.name}>
               <Reveal delay={i * 0.1} className="h-full">

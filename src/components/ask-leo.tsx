@@ -3,15 +3,18 @@
 import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import { AnimatePresence, motion, useInView } from "motion/react";
 import { Reveal } from "@/components/motion-primitives";
+import { Scribble } from "@/components/sketch";
 import { profile } from "@/content/profile";
 
 type Message = { id: number; role: "twin" | "visitor"; text: string };
 
+// What recruiters actually ask on a first screen.
 const suggestions = [
-  "Why you over a US-based engineer?",
-  "What's the hardest thing you've built?",
-  "Show me your React",
-  "How's your English, really?",
+  "Give me your 30-second pitch",
+  "How strong are you with React and Node?",
+  "Can you work US hours?",
+  "What's your biggest win so far?",
+  "What role are you looking for next?",
 ];
 
 const greeting: Message = {
@@ -107,7 +110,10 @@ export function AskLeo() {
 
   return (
     <section id="ask" className="relative scroll-mt-24 py-24">
-      <div className="mx-auto max-w-3xl px-6">
+      <div className="relative mx-auto max-w-3xl px-6">
+        <Scribble arrow="down-left" delay={0.4} tilt={4} className="absolute top-20 right-[-8rem] max-lg:hidden" arrowClassName="-ml-2 mt-1">
+          real AI. go on, grill it
+        </Scribble>
         <Reveal>
           <p className="font-mono text-xs tracking-[0.18em] text-fg-faint uppercase">01 — Interview me</p>
           <h2 className="mt-4 text-4xl font-semibold tracking-[-0.03em] md:text-5xl">

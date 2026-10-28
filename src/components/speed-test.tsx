@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { AnimatePresence, animate, motion, useMotionValue, useReducedMotion, useTransform } from "motion/react";
 import { Reveal } from "@/components/motion-primitives";
+import { Scribble } from "@/components/sketch";
 import type { PageSpeedResult, Strategy } from "@/lib/pagespeed";
 
 const ease = [0.22, 1, 0.36, 1] as const;
@@ -105,6 +106,9 @@ export function SpeedTest() {
           </p>
         </Reveal>
 
+        <Scribble arrow="down-right" delay={0.3} tilt={3} className="-mb-6 mt-4 flex flex-col items-end pr-28 max-md:hidden" arrowClassName="mr-[-4.5rem]">
+          go on, press it
+        </Scribble>
         <Reveal delay={0.1} className="mt-10 overflow-hidden rounded-3xl border border-line-strong bg-ink">
           <div className="flex flex-wrap items-center justify-between gap-4 border-b border-line px-6 py-4 md:px-8">
             <div role="group" aria-label="Device" className="flex rounded-full border border-line-strong p-1">

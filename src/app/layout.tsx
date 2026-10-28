@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter_Tight, JetBrains_Mono, Instrument_Serif } from "next/font/google";
+import { Caveat, Great_Vibes, Inter_Tight, JetBrains_Mono, Instrument_Serif } from "next/font/google";
 import { profile } from "@/content/profile";
 import "./globals.css";
 
@@ -20,6 +20,18 @@ const instrumentSerif = Instrument_Serif({
   style: ["normal", "italic"],
 });
 
+const caveat = Caveat({
+  variable: "--font-caveat",
+  subsets: ["latin"],
+  weight: ["500"],
+});
+
+const greatVibes = Great_Vibes({
+  variable: "--font-great-vibes",
+  subsets: ["latin"],
+  weight: "400",
+});
+
 export const metadata: Metadata = {
   title: `${profile.name} · ${profile.role}`,
   description:
@@ -30,7 +42,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
-      className={`${interTight.variable} ${jetbrainsMono.variable} ${instrumentSerif.variable} h-full antialiased`}
+      className={`${interTight.variable} ${jetbrainsMono.variable} ${instrumentSerif.variable} ${caveat.variable} ${greatVibes.variable} h-full antialiased`}
     >
       <body className="min-h-full">{children}</body>
     </html>

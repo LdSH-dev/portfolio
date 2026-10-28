@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { Reveal } from "@/components/motion-primitives";
+import { Scribble } from "@/components/sketch";
 import { RoleDetails } from "@/components/role-details";
 import { experience, type Role } from "@/content/profile";
 
@@ -179,7 +180,10 @@ export function ExperienceList({ id = "experience" }: { id?: string }) {
 
   return (
     <section id={id} className="scroll-mt-24 py-24">
-      <div className="mx-auto max-w-6xl px-6">
+      <div className="relative mx-auto max-w-6xl px-6">
+        <Scribble arrow="down-left" delay={0.3} tilt={-3} className="absolute top-20 right-10 max-lg:hidden" arrowClassName="-ml-6">
+          open any row for the full story
+        </Scribble>
         <Reveal>
           <p className="font-mono text-xs tracking-[0.18em] text-fg-faint uppercase">02 — Experience</p>
           <h2 className="mt-4 max-w-2xl text-4xl font-semibold tracking-[-0.03em] text-balance md:text-5xl">

@@ -1,6 +1,7 @@
 import { BookCall } from "@/components/book-call";
 import { Globe } from "@/components/globe";
 import { Magnetic, Reveal, SplitReveal } from "@/components/motion-primitives";
+import { Scribble, Seal } from "@/components/sketch";
 import { profile } from "@/content/profile";
 
 const build = (process.env.VERCEL_GIT_COMMIT_SHA ?? "local").slice(0, 7);
@@ -56,6 +57,10 @@ export function Hero() {
 
         <div data-cursor="drag" className="relative aspect-square w-full">
           <Globe />
+          <Seal className="absolute top-[2%] right-[2%] size-24 md:size-28" />
+          <Scribble arrow="right" row delay={1.4} className="absolute bottom-[19%] left-[4%] max-md:hidden" arrowClassName="mt-3 w-24">
+            home base, on US hours
+          </Scribble>
           {/* Draftsman annotations, in the spirit of a blueprint. */}
           <dl className="pointer-events-none absolute top-[6%] left-0 space-y-1 font-mono text-[10px] leading-tight text-fg-faint">
             <div>

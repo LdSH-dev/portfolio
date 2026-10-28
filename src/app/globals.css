@@ -29,6 +29,8 @@
   --font-sans: var(--font-inter-tight);
   --font-mono: var(--font-jetbrains-mono);
   --font-serif: var(--font-instrument-serif);
+  --font-hand: var(--font-caveat);
+  --font-script: var(--font-great-vibes);
 }
 
 html {
