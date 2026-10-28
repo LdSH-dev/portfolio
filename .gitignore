@@ -40,3 +40,8 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# marketplace agent skills (docs pulled by the Vercel CLI)
+.agents/
+.claude/
+skills-lock.json

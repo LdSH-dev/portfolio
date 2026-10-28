@@ -30,6 +30,10 @@ async function networkOrg(ip: string) {
 export async function POST(request: Request) {
   const ua = request.headers.get("user-agent") ?? "";
   if (!ua || BOT.test(ua)) return new Response(null, { status: 204 });
+  // Local dev shares the production store: keep my own test visits out of it.
+  if (process.env.NODE_ENV !== "production" && process.env.TRACK_IN_DEV !== "1") {
+    return new Response(null, { status: 204 });
+  }
 
   const body = (await request.json().catch(() => null)) as Record<string, unknown> | null;
   const str = (key: string, max: number) => (typeof body?.[key] === "string" ? (body[key] as string).slice(0, max) : "");
