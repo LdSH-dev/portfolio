@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { BookCall } from "@/components/book-call";
 import { Magnetic, Reveal } from "@/components/motion-primitives";
 import { CoffeePlate, Signature } from "@/components/sketch";
@@ -54,7 +55,10 @@ export function Footer() {
             <Signature className="h-16 w-52 shrink-0" />
           </div>
           <p className="mt-10 font-mono text-[11px] text-fg-faint">
-            {profile.name} · Built with Next.js, deployed on Vercel.
+            {profile.name} · Built with Next.js, deployed on Vercel ·{" "}
+            <Link href="/privacy" className="hover:text-fg">
+              Privacy
+            </Link>
           </p>
         </div>
         <CoffeePlate className="mx-auto w-full max-w-[340px]" />
