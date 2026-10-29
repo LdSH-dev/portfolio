@@ -209,6 +209,9 @@ html.has-custom-cursor [data-cursor="drag"] canvas:active {
   ::-webkit-scrollbar-corner {
     background: transparent;
   }
+  ::-webkit-scrollbar-button {
+    display: none;
+  }
   @supports not selector(::-webkit-scrollbar) {
     html {
       scrollbar-width: thin;

@@ -110,6 +110,12 @@ export function Magnetic({ children, strength = 0.25 }: { children: ReactNode; s
 
   const onMove = (e: PointerEvent<HTMLDivElement>) => {
     if (reduced || e.pointerType !== "mouse" || !ref.current) return;
+    // React bubbles events from portals (the booking modal) up the component
+    // tree, so only follow the pointer while it's really over the button.
+    if (!ref.current.contains(e.target as Node)) {
+      setOffset({ x: 0, y: 0 });
+      return;
+    }
     const rect = ref.current.getBoundingClientRect();
     setOffset({
       x: (e.clientX - (rect.left + rect.width / 2)) * strength,
