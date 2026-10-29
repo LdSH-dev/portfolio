@@ -45,12 +45,20 @@ export const metadata: Metadata = {
     "Senior full-stack engineer building fast, reliable React and Node.js products for US teams. Ask my digital twin why I'm the right hire.",
 };
 
+// Applies a light mode the visitor already unlocked before first paint, so
+// there's no dark flash on reload.
+const themeScript = `try{if(localStorage.getItem("leo:theme")==="light")document.documentElement.dataset.theme="light"}catch(e){}`;
+
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
+      suppressHydrationWarning
       className={`${interTight.variable} ${jetbrainsMono.variable} ${instrumentSerif.variable} ${caveat.variable} ${greatVibes.variable} h-full antialiased`}
     >
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+      </head>
       <body className="min-h-full">{children}</body>
     </html>
   );

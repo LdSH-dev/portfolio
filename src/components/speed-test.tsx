@@ -55,10 +55,15 @@ function Gauge({ value, label, delay }: { value: number; label: string; delay: n
             stroke={t.stroke}
             strokeWidth="6"
             strokeLinecap="round"
-            style={{ strokeDasharray: dash, filter: `drop-shadow(0 0 6px ${t.stroke}66)` }}
+            style={{
+              strokeDasharray: dash,
+              filter: `drop-shadow(0 0 6px ${t.stroke}66)`,
+            }}
           />
         </svg>
-        <motion.span className={`absolute inset-0 grid place-items-center text-3xl font-semibold tabular-nums ${t.text}`}>
+        <motion.span
+          className={`absolute inset-0 grid place-items-center text-3xl font-semibold tabular-nums ${t.text}`}
+        >
           {shown}
         </motion.span>
       </div>
@@ -105,15 +110,24 @@ export function SpeedTest() {
         <Reveal>
           <p className="font-mono text-xs tracking-[0.18em] text-fg-faint uppercase">06 · Performance</p>
           <h2 className="mt-4 max-w-3xl text-4xl font-semibold tracking-[-0.03em] text-balance md:text-5xl">
-            A 3D globe, a custom cursor, a dozen animations.{" "}
-            <span className="font-serif font-normal italic tracking-normal text-amber-gradient">Still fast.</span>
+            Is this site fast?{" "}
+            <span className="font-serif font-normal italic tracking-normal text-amber-gradient">
+              Let Google tell you.
+            </span>
           </h2>
           <p className="mt-4 max-w-xl text-fg-muted">
-            Don&apos;t trust a screenshot. Run Google&apos;s own PageSpeed audit on this page, live, right now.
+            Press the button and Google&apos;s PageSpeed tool opens this live site on its own servers and grades it from
+            0 to 100. Anything above 90 is what Google calls fast. Takes about 20 seconds.
           </p>
         </Reveal>
 
-        <Scribble arrow="down-right" delay={0.3} tilt={3} className="-mb-6 mt-4 flex flex-col items-end pr-28 max-md:hidden" arrowClassName="mr-[-4.5rem]">
+        <Scribble
+          arrow="down-right"
+          delay={0.3}
+          tilt={3}
+          className="-mb-6 mt-4 flex flex-col items-end pr-28 max-md:hidden"
+          arrowClassName="mr-[-4.5rem]"
+        >
           go on, press it
         </Scribble>
         <Reveal delay={0.1} className="mt-10 overflow-hidden rounded-3xl border border-line-strong bg-ink">
@@ -132,7 +146,11 @@ export function SpeedTest() {
                     <motion.span
                       layoutId="psi-strategy"
                       className="absolute inset-0 rounded-full bg-fg"
-                      transition={{ type: "spring", stiffness: 400, damping: 34 }}
+                      transition={{
+                        type: "spring",
+                        stiffness: 400,
+                        damping: 34,
+                      }}
                     />
                   )}
                   <span className="relative">{s}</span>
@@ -142,8 +160,9 @@ export function SpeedTest() {
             <button
               type="button"
               onClick={run}
+              data-cursor="~20s"
               disabled={!siteUrl || anyRunning}
-              className="rounded-full bg-gradient-to-r from-amber-soft via-amber to-amber-deep px-6 py-2.5 text-sm font-semibold text-ink transition-opacity disabled:opacity-40"
+              className="rounded-full bg-gradient-to-r from-amber-soft via-amber to-amber-deep px-6 py-2.5 text-sm font-semibold text-on-amber transition-opacity disabled:opacity-40"
             >
               {status === "running" ? "Running…" : status === "done" ? "Run again" : "Run live test"}
             </button>
@@ -152,12 +171,17 @@ export function SpeedTest() {
           <div className="relative min-h-[300px] px-6 py-10 md:px-8">
             <AnimatePresence mode="wait">
               {status === "idle" && (
-                <motion.div key={`idle-${strategy}`} exit={{ opacity: 0 }} className="grid place-items-center py-10 text-center">
+                <motion.div
+                  key={`idle-${strategy}`}
+                  exit={{ opacity: 0 }}
+                  className="grid place-items-center py-10 text-center"
+                >
                   <p className="max-w-md text-fg-muted">
                     {siteUrl ? (
                       <>
-                        Google will load <span className="font-mono text-fg">{siteUrl.replace(/^https?:\/\//, "")}</span>{" "}
-                        on its own servers and score it. Takes about 20 seconds.
+                        No results yet. Pick <span className="text-fg">mobile</span> or{" "}
+                        <span className="text-fg">desktop</span> and press{" "}
+                        <span className="text-fg">Run live test</span>.
                       </>
                     ) : (
                       "The live test runs against the published site, so it switches on once this page is deployed."
@@ -180,7 +204,11 @@ export function SpeedTest() {
                     <motion.span
                       className="absolute inset-y-0 w-1/3 rounded-full bg-gradient-to-r from-transparent via-amber to-transparent"
                       animate={{ x: ["-100%", "300%"] }}
-                      transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut" }}
+                      transition={{
+                        duration: 1.6,
+                        repeat: Infinity,
+                        ease: "easeInOut",
+                      }}
                     />
                   </div>
                   <AnimatePresence mode="wait">
@@ -199,10 +227,15 @@ export function SpeedTest() {
               )}
 
               {status === "error" && (
-                <motion.div key={`error-${strategy}`} initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="grid place-items-center py-10 text-center">
+                <motion.div
+                  key={`error-${strategy}`}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="grid place-items-center py-10 text-center"
+                >
                   <p className="max-w-md text-fg-muted">
-                    Google&apos;s PageSpeed service didn&apos;t answer this time (it rate-limits busy periods). Try again in
-                    a minute, or{" "}
+                    Google&apos;s PageSpeed service didn&apos;t answer this time (it rate-limits busy periods). Try
+                    again in a minute, or{" "}
                     {siteUrl && (
                       <a
                         className="text-fg underline underline-offset-4"
@@ -218,33 +251,51 @@ export function SpeedTest() {
               )}
 
               {status === "done" && result && (
-                <motion.div key={`done-${strategy}`} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.4 }}>
+                <motion.div
+                  key={`done-${strategy}`}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.4 }}
+                >
                   <div className="grid grid-cols-2 gap-y-8 md:grid-cols-4">
                     {result.scores.map((s, i) => (
                       <Gauge key={s.id} value={s.value} label={s.label} delay={0.1 + i * 0.12} />
                     ))}
                   </div>
 
-                  <dl className="mt-12 grid gap-px overflow-hidden rounded-2xl border border-line bg-line sm:grid-cols-2 lg:grid-cols-5">
-                    {result.metrics.map((m, i) => (
-                      <motion.div
-                        key={m.id}
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.6 + i * 0.07, ease }}
-                        className="bg-ink-raised p-4"
-                      >
-                        <dt className="flex items-center gap-2 text-xs text-fg-faint">
-                          <span
-                            className="size-2 rounded-full"
-                            style={{ backgroundColor: tone(Math.round(m.score * 100)).stroke }}
-                          />
-                          {m.label}
-                        </dt>
-                        <dd className="mt-2 font-mono text-lg text-fg">{m.display}</dd>
-                      </motion.div>
-                    ))}
-                  </dl>
+                  <p className="mt-8 text-center text-sm text-fg-muted">
+                    Each score goes from 0 to 100. <span className="text-emerald-400">90+ is good</span>, 50 to 89 needs
+                    work, below 50 is poor.
+                  </p>
+
+                  <details className="group mt-8">
+                    <summary className="cursor-pointer list-none text-center font-mono text-[11px] text-fg-faint transition-colors hover:text-fg [&::-webkit-details-marker]:hidden">
+                      <span className="group-open:hidden">show the technical details ↓</span>
+                      <span className="hidden group-open:inline">hide the technical details ↑</span>
+                    </summary>
+                    <dl className="mt-6 grid gap-px overflow-hidden rounded-2xl border border-line bg-line sm:grid-cols-2 lg:grid-cols-5">
+                      {result.metrics.map((m, i) => (
+                        <motion.div
+                          key={m.id}
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: 0.6 + i * 0.07, ease }}
+                          className="bg-ink-raised p-4"
+                        >
+                          <dt className="flex items-center gap-2 text-xs text-fg-faint">
+                            <span
+                              className="size-2 rounded-full"
+                              style={{
+                                backgroundColor: tone(Math.round(m.score * 100)).stroke,
+                              }}
+                            />
+                            {m.label}
+                          </dt>
+                          <dd className="mt-2 font-mono text-lg text-fg">{m.display}</dd>
+                        </motion.div>
+                      ))}
+                    </dl>
+                  </details>
 
                   <p className="mt-6 flex flex-wrap items-center justify-between gap-3 font-mono text-[11px] text-fg-faint">
                     <span>

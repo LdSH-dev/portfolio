@@ -123,10 +123,11 @@ export function Globe({ className }: { className?: string }) {
 
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       ctx.clearRect(0, 0, width, height);
+      const light = document.documentElement.dataset.theme === "light";
       ctx.globalAlpha = intro;
 
       // Silhouette ring, like a draftsman's construction circle.
-      ctx.strokeStyle = "rgba(148,163,184,0.16)";
+      ctx.strokeStyle = light ? "rgba(51,65,85,0.25)" : "rgba(148,163,184,0.16)";
       ctx.lineWidth = 1;
       ctx.beginPath();
       ctx.arc(cx, cy, radius, 0, Math.PI * 2);
@@ -149,7 +150,7 @@ export function Globe({ className }: { className?: string }) {
       }
       bands.forEach((band, b) => {
         if (!band.length) return;
-        ctx.fillStyle = `rgba(178,190,210,${0.08 + ((b + 0.5) / BANDS) * 0.6})`;
+        ctx.fillStyle = `rgba(${light ? "60,70,90" : "178,190,210"},${0.08 + ((b + 0.5) / BANDS) * 0.6})`;
         ctx.beginPath();
         for (let k = 0; k < band.length; k += 2) ctx.rect(band[k] - 0.8, band[k + 1] - 0.8, 1.6, 1.6);
         ctx.fill();
@@ -195,7 +196,7 @@ export function Globe({ className }: { className?: string }) {
         const p = project(toVec(city));
         if (p.depth <= 0) continue;
         const isOrigin = city.code === ORIGIN.code;
-        ctx.fillStyle = isOrigin ? "#f7d699" : "#f0b45c";
+        ctx.fillStyle = light ? (isOrigin ? "#c27318" : "#9a5410") : isOrigin ? "#f7d699" : "#f0b45c";
         ctx.beginPath();
         ctx.arc(p.sx, p.sy, isOrigin ? 3.5 : 2.5, 0, Math.PI * 2);
         ctx.fill();
@@ -204,13 +205,13 @@ export function Globe({ className }: { className?: string }) {
         const tw = ctx.measureText(label).width;
         const lx = p.sx + 8;
         const ly = p.sy - 12;
-        ctx.fillStyle = "rgba(13,17,23,0.85)";
+        ctx.fillStyle = light ? "rgba(255,252,245,0.9)" : "rgba(13,17,23,0.85)";
         ctx.strokeStyle = "rgba(240,180,92,0.35)";
         ctx.beginPath();
         ctx.roundRect(lx, ly - 8, tw + 10, 16, 3);
         ctx.fill();
         ctx.stroke();
-        ctx.fillStyle = "#e9ebef";
+        ctx.fillStyle = light ? "#15181e" : "#e9ebef";
         ctx.fillText(label, lx + 5, ly);
       }
     };

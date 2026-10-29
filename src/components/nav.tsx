@@ -11,6 +11,7 @@ const links = [
   { href: "#experience", label: "Experience", short: "Career" },
   { href: "#testimonials", label: "Reviews", short: "Reviews" },
   { href: "#github", label: "Code", short: "Code", wide: true },
+  { href: "#performance", label: "Performance", short: "Speed", wide: true },
   { href: "#contact", label: "Contact", short: "Contact" },
 ];
 
@@ -33,7 +34,7 @@ export function Nav() {
     );
     sections.forEach((s) => io.observe(s));
     // Sections without a nav entry clear the highlight.
-    const unlisted = ["#top", "#performance"].map((sel) => document.querySelector(sel));
+    const unlisted = ["#top"].map((sel) => document.querySelector(sel));
     const topIo = new IntersectionObserver(([e]) => e.isIntersecting && setActive(null), {
       rootMargin: "-45% 0px -50% 0px",
     });

@@ -34,6 +34,15 @@ export function ConsoleArt() {
       "color:#e9ebef;font-size:14px;font-weight:600",
       "color:#8b94a3;font-size:12px;line-height:1.6",
     );
+    // The first thing a careful engineer checks on an AI site.
+    console.log(
+      "%cLooking for the API key?%c\n" +
+        "Good instinct. It isn't here: the twin is called only from the server, and the key never reaches your browser.\n" +
+        "The endpoint is rate-limited per IP, input is length-checked, the provider account has a hard spend cap,\n" +
+        "and I read the transcripts. Check the Network tab: /api/chat streams plain text, nothing else.",
+      "color:#f0b45c;font-size:13px;font-weight:600",
+      "color:#8b94a3;font-size:12px;line-height:1.6",
+    );
   }, []);
   return null;
 }

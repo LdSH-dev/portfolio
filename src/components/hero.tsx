@@ -17,8 +17,8 @@ export function Hero() {
 
       <div className="relative mx-auto grid max-w-6xl items-center gap-10 px-6 md:grid-cols-[1.05fr_1fr]">
         <div>
-          <p className="font-mono text-xs tracking-[0.18em] text-fg-faint uppercase">
-            {profile.name} · {profile.role}
+          <p className="font-mono text-xs tracking-[0.18em] text-fg-muted uppercase">
+            <span className="text-fg">{profile.name}</span> · {profile.role} · {profile.languages}
           </p>
           <h1 className="mt-6 text-[2.6rem] leading-[1.02] font-semibold tracking-[-0.035em] md:text-6xl">
             <SplitReveal
@@ -44,7 +44,7 @@ export function Hero() {
             <Magnetic>
               <a
                 href="#ask"
-                className="block rounded-full bg-gradient-to-r from-amber-soft via-amber to-amber-deep px-6 py-3 text-sm font-semibold text-ink"
+                className="block rounded-full bg-gradient-to-r from-amber-soft via-amber to-amber-deep px-6 py-3 text-sm font-semibold text-on-amber"
               >
                 Ask my digital twin
               </a>
@@ -52,6 +52,13 @@ export function Hero() {
             <BookCall className="rounded-full border border-line-strong px-6 py-3 text-sm font-medium text-fg transition-colors hover:bg-white/5">
               Book a call
             </BookCall>
+            <a
+              href={profile.cv}
+              download
+              className="px-2 py-3 text-sm font-medium text-fg-muted underline-offset-4 transition-colors hover:text-fg hover:underline"
+            >
+              Download CV ↓
+            </a>
           </div>
         </div>
 

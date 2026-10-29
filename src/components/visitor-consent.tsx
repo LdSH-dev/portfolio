@@ -92,7 +92,7 @@ export function VisitorConsent() {
             <button
               type="button"
               onClick={() => answer(true)}
-              className="rounded-full bg-gradient-to-r from-amber-soft via-amber to-amber-deep px-4 py-2 text-sm font-semibold text-ink"
+              className="rounded-full bg-gradient-to-r from-amber-soft via-amber to-amber-deep px-4 py-2 text-sm font-semibold text-on-amber"
             >
               Sure, count me in
             </button>

@@ -74,7 +74,7 @@ export function About() {
                 sizes="300px"
                 className="aspect-square w-full object-cover"
               />
-              <figcaption className="absolute inset-x-0 bottom-3 text-center font-hand text-2xl text-ink/80">
+              <figcaption className="absolute inset-x-0 bottom-3 text-center font-hand text-2xl text-on-amber/80">
                 me, somewhere new
               </figcaption>
             </NearView>

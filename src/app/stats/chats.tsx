@@ -131,7 +131,7 @@ export function Chats({
                 <p
                   className={
                     t.role === "user"
-                      ? "max-w-md rounded-2xl rounded-br-md bg-amber/90 px-4 py-2.5 text-sm text-ink"
+                      ? "max-w-md rounded-2xl rounded-br-md bg-amber/90 px-4 py-2.5 text-sm text-on-amber"
                       : "max-w-md rounded-2xl rounded-bl-md border border-line bg-ink-overlay px-4 py-2.5 text-sm leading-relaxed whitespace-pre-wrap text-fg"
                   }
                 >

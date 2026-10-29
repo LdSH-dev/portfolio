@@ -13,6 +13,8 @@ export const profile = {
   },
   yearsOfExperience: "7+",
   age: 24,
+  languages: "EN / PT-BR",
+  cv: "/Leonardo_Hemming_CV.pdf",
 } as const;
 
 // `from`/`to` drive the count-up animation; `to` is the real figure.
@@ -188,20 +190,20 @@ export type Testimonial = {
 
 export const testimonials: Testimonial[] = [
   {
-    highlight: "Leo is reliable, easy to communicate with, and brings a positive mindset to the work environment.",
-    quote:
-      "During our time together at NativePath, Leonardo served as a Software Developer on our team. He demonstrated a strong commitment to team goals, was always open to receiving feedback, and maintained a collaborative approach to everyday tasks.",
-    name: "Lucas Tanaka",
-    title: "Full Stack Engineer",
-    relation: "Teammate at NativePath",
-  },
-  {
     highlight: "He demonstrated professionalism, technical expertise, and a strong commitment to deadlines and quality.",
     quote:
       "In addition to his skills in web development, he also stood out for his clear communication and willingness to make adjustments whenever necessary. I would definitely recommend him for any project requiring technical precision, creativity, and efficiency.",
     name: "Sangar Zucchi",
     title: "IT Consultant",
     relation: "Client via Workana",
+  },
+  {
+    highlight: "Leo is reliable, easy to communicate with, and brings a positive mindset to the work environment.",
+    quote:
+      "During our time together at NativePath, Leonardo served as a Software Developer on our team. He demonstrated a strong commitment to team goals, was always open to receiving feedback, and maintained a collaborative approach to everyday tasks.",
+    name: "Lucas Tanaka",
+    title: "Full Stack Engineer",
+    relation: "Teammate at NativePath",
   },
 ];
 
@@ -211,7 +213,7 @@ export const recommendationsUrl = `${profile.links.linkedin}/details/recommendat
 export const suggestions = [
   "Give me your 30-second pitch",
   "How strong are you with React and Node?",
-  "Can you work US hours?",
-  "What's your biggest win so far?",
+  "How do you use AI in your work?",
+  "What's your biggest weakness?",
   "What role are you looking for next?",
 ];

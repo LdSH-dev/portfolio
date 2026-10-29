@@ -21,10 +21,17 @@ export function Footer() {
           </Reveal>
           <div className="mt-10 flex flex-wrap items-center gap-3">
             <Magnetic>
-              <BookCall className="block rounded-full bg-gradient-to-r from-amber-soft via-amber to-amber-deep px-6 py-3 text-sm font-semibold text-ink">
+              <BookCall className="block rounded-full bg-gradient-to-r from-amber-soft via-amber to-amber-deep px-6 py-3 text-sm font-semibold text-on-amber">
                 Book a 30-min call
               </BookCall>
             </Magnetic>
+            <a
+              href={profile.cv}
+              download
+              className="rounded-full border border-amber/50 px-6 py-3 text-sm font-medium text-amber transition-colors hover:bg-amber/10"
+            >
+              Download CV (PDF) ↓
+            </a>
             <a
               href={`mailto:${profile.email}`}
               className="rounded-full border border-line-strong px-6 py-3 text-sm font-medium transition-colors hover:bg-white/5"

@@ -105,7 +105,7 @@ export function BookCall({ className, children }: { className?: string; children
 
   return (
     <>
-      <button type="button" onClick={openModal} className={className}>
+      <button type="button" onClick={openModal} className={className} data-cursor="30 min">
         {label}
       </button>
       {typeof document !== "undefined" &&
@@ -221,7 +221,7 @@ export function BookCall({ className, children }: { className?: string; children
                                           setDay(key);
                                           setSlot(null);
                                         }}
-                                        className="relative w-14 shrink-0 rounded-xl border border-line-strong py-2 text-center transition-colors hover:border-amber/50 aria-pressed:border-transparent aria-pressed:text-ink"
+                                        className="relative w-14 shrink-0 rounded-xl border border-line-strong py-2 text-center transition-colors hover:border-amber/50 aria-pressed:border-transparent aria-pressed:text-on-amber"
                                       >
                                         {day === key && (
                                           <motion.span layoutId="book-day" className="absolute inset-0 rounded-xl bg-amber" transition={{ type: "spring", stiffness: 400, damping: 34 }} />
@@ -261,7 +261,7 @@ export function BookCall({ className, children }: { className?: string; children
                                       type="button"
                                       disabled={!slot}
                                       onClick={() => setStep({ name: "details" })}
-                                      className="rounded-full bg-gradient-to-r from-amber-soft via-amber to-amber-deep px-6 py-2.5 text-sm font-semibold text-ink transition-opacity disabled:opacity-30"
+                                      className="rounded-full bg-gradient-to-r from-amber-soft via-amber to-amber-deep px-6 py-2.5 text-sm font-semibold text-on-amber transition-opacity disabled:opacity-30"
                                     >
                                       Continue →
                                     </button>
@@ -307,7 +307,7 @@ export function BookCall({ className, children }: { className?: string; children
                                 <button
                                   type="submit"
                                   disabled={step.name === "sending"}
-                                  className="rounded-full bg-gradient-to-r from-amber-soft via-amber to-amber-deep px-6 py-2.5 text-sm font-semibold text-ink transition-opacity disabled:opacity-50"
+                                  className="rounded-full bg-gradient-to-r from-amber-soft via-amber to-amber-deep px-6 py-2.5 text-sm font-semibold text-on-amber transition-opacity disabled:opacity-50"
                                 >
                                   {step.name === "sending" ? "Booking…" : "Confirm booking"}
                                 </button>

@@ -83,7 +83,7 @@ function Row({ role, open, onToggle, index }: { role: Role; open: boolean; onTog
           animate={{ rotate: open ? 45 : 0 }}
           transition={{ duration: 0.4, ease }}
           className={`relative col-start-2 row-start-2 grid size-9 place-items-center self-center justify-self-end rounded-full border transition-colors md:col-start-auto md:row-start-auto ${
-            open ? "border-amber bg-amber text-ink" : "border-line-strong text-fg-muted group-hover:border-amber/60 group-hover:text-amber"
+            open ? "border-amber bg-amber text-on-amber" : "border-line-strong text-fg-muted group-hover:border-amber/60 group-hover:text-amber"
           }`}
         >
           +
