@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { AnimatePresence, animate, motion, useMotionValue, useReducedMotion, useTransform } from "motion/react";
+import { AnimatePresence, motion, useMotionValue, useReducedMotion, useTransform } from "motion/react";
 import { Reveal } from "@/components/motion-primitives";
 import { Scribble } from "@/components/sketch";
 import type { PageSpeedResult, Strategy } from "@/lib/pagespeed";
@@ -38,8 +38,17 @@ function Gauge({ value, label, delay }: { value: number; label: string; delay: n
 
   useEffect(() => {
     if (reduced) return;
-    const controls = animate(progress, value, { duration: 1.6, ease, delay });
-    return () => controls.stop();
+    // A plain rAF count-up: the imperative animate() would pull the whole
+    // animation engine into the first bundle.
+    let frame = 0;
+    const start = performance.now() + delay * 1000;
+    const step = (now: number) => {
+      const t = Math.min(1, Math.max(0, (now - start) / 1600));
+      progress.set(value * (1 - (1 - t) ** 4));
+      if (t < 1) frame = requestAnimationFrame(step);
+    };
+    frame = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(frame);
   }, [progress, value, delay, reduced]);
 
   return (
@@ -74,6 +83,12 @@ function Gauge({ value, label, delay }: { value: number; label: string; delay: n
 
 export function SpeedTest() {
   const [strategy, setStrategy] = useState<Strategy>("mobile");
+  // Open on the visitor's own device. The server can't know it, so this
+  // flips after hydration (the section is far below the fold).
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    if (window.matchMedia("(min-width: 768px)").matches) setStrategy("desktop");
+  }, []);
   // One result per device, kept for the visit so switching tabs never shows
   // the other device's scores. Nothing runs until the visitor asks.
   const [runs, setRuns] = useState<Partial<Record<Strategy, Run>>>({});
@@ -140,7 +155,7 @@ export function SpeedTest() {
                   aria-pressed={strategy === s}
                   disabled={anyRunning}
                   onClick={() => setStrategy(s)}
-                  className="relative rounded-full px-4 py-1.5 text-sm capitalize transition-colors disabled:opacity-50 aria-pressed:text-ink"
+                  className={`relative rounded-full px-4 py-1.5 text-sm capitalize transition-colors disabled:opacity-50 aria-pressed:text-ink ${s === "desktop" ? "md:order-first" : ""}`}
                 >
                   {strategy === s && (
                     <motion.span
@@ -274,9 +289,9 @@ export function SpeedTest() {
                       <span className="hidden group-open:inline">hide the technical details ↑</span>
                     </summary>
                     <dl className="mt-6 grid gap-px overflow-hidden rounded-2xl border border-line bg-line sm:grid-cols-2 lg:grid-cols-5">
-                      {result.metrics.map((m, i) => (
+                      {result.metrics.map((metric, i) => (
                         <motion.div
-                          key={m.id}
+                          key={metric.id}
                           initial={{ opacity: 0, y: 10 }}
                           animate={{ opacity: 1, y: 0 }}
                           transition={{ delay: 0.6 + i * 0.07, ease }}
@@ -286,12 +301,12 @@ export function SpeedTest() {
                             <span
                               className="size-2 rounded-full"
                               style={{
-                                backgroundColor: tone(Math.round(m.score * 100)).stroke,
+                                backgroundColor: tone(Math.round(metric.score * 100)).stroke,
                               }}
                             />
-                            {m.label}
+                            {metric.label}
                           </dt>
-                          <dd className="mt-2 font-mono text-lg text-fg">{m.display}</dd>
+                          <dd className="mt-2 font-mono text-lg text-fg">{metric.display}</dd>
                         </motion.div>
                       ))}
                     </dl>

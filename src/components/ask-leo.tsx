@@ -149,23 +149,23 @@ export function AskLeo() {
             className="flex max-h-[420px] min-h-[150px] flex-col gap-4 overflow-y-auto p-5"
           >
             <AnimatePresence initial={false}>
-              {messages.map((m) => (
+              {messages.map((msg) => (
                 <motion.li
-                  key={m.id}
+                  key={msg.id}
                   initial={{ opacity: 0, y: 8 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.25, ease: "easeOut" }}
-                  className={m.role === "visitor" ? "self-end" : "flex items-end gap-2 self-start"}
+                  className={msg.role === "visitor" ? "self-end" : "flex items-end gap-2 self-start"}
                 >
-                  {m.role === "twin" && <TwinAvatar />}
+                  {msg.role === "twin" && <TwinAvatar />}
                   <p
                     className={
-                      m.role === "visitor"
+                      msg.role === "visitor"
                         ? "max-w-md rounded-2xl rounded-br-md bg-amber/90 px-4 py-2.5 text-sm text-on-amber"
                         : "max-w-md rounded-2xl rounded-bl-md border border-line bg-ink-overlay px-4 py-2.5 text-sm leading-relaxed whitespace-pre-wrap text-fg"
                     }
                   >
-                    {m.text}
+                    {msg.text}
                   </p>
                 </motion.li>
               ))}

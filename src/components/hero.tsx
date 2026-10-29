@@ -17,8 +17,9 @@ export function Hero() {
 
       <div className="relative mx-auto grid max-w-6xl items-center gap-10 px-6 md:grid-cols-[1.05fr_1fr]">
         <div>
-          <p className="font-mono text-xs tracking-[0.18em] text-fg-muted uppercase">
-            <span className="text-fg">{profile.name}</span> · {profile.role} · {profile.languages}
+          <p className="font-mono text-xs tracking-[0.18em] whitespace-nowrap text-fg-muted uppercase">
+            <span className="text-fg">{profile.name}</span>
+            <span className="max-sm:hidden"> · {profile.role}</span> · {profile.languages}
           </p>
           <h1 className="mt-6 text-[2.6rem] leading-[1.02] font-semibold tracking-[-0.035em] md:text-6xl">
             <SplitReveal
